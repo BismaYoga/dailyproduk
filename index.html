@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyProduk</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Katalog DailyProduk - Rekomendasi Pilihan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #ee4d2d;
             --primary-hover: #d73a1e;
-            --bg-color: #f5f5f5;
+            --bg-color: #f7f8fa;
             --text-color: #333;
             --text-muted: #757575;
         }
@@ -21,15 +21,15 @@
             color: var(--text-color);
         }
         .header {
-            background: linear-gradient(-180deg, #f53d2d, #f63);
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             padding: 16px 20px;
-            color: white;
             position: sticky;
             top: 0;
             z-index: 100;
         }
         .header-content {
-            max-width: 1200px;
+            max-width: 1024px;
             margin: auto;
             display: flex;
             flex-direction: column;
@@ -44,9 +44,9 @@
         }
         .brand {
             font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: lowercase;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            color: var(--primary);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -55,15 +55,16 @@
             display: flex;
             width: 100%;
             max-width: 600px;
-            background: white; 
-            border-radius: 4px;
+            background: #f1f2f6; 
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            border: 1px solid #e1e3e8;
         }
         .search-box input { 
-            padding: 10px 14px; 
+            padding: 12px 16px; 
             flex-grow: 1; 
             border: none; 
+            background: transparent;
             outline: none; 
             font-size: 14px;
             font-family: inherit;
@@ -80,52 +81,61 @@
             justify-content: center;
             transition: background 0.2s;
         }
-        .search-box button.btn-search:hover {
-            background: var(--primary-hover);
-        }
+        .search-box button.btn-search:hover { background: var(--primary-hover); }
         .search-box button.btn-reset {
-            padding: 0 15px;
-            background: #fff;
-            color: var(--text-muted);
-            border: none;
-            border-left: 1px solid #eee;
-            cursor: pointer;
-            font-size: 14px;
+            padding: 0 15px; background: transparent; color: var(--text-muted);
+            border: none; border-left: 1px solid #ddd; cursor: pointer; font-size: 14px;
         }
-        .search-box button.btn-reset:hover {
-            background: #fdfdfd;
-            color: #333;
+        .search-box button.btn-reset:hover { color: #333; }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,248,245,1) 100%);
+            padding: 35px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border-bottom: 4px solid var(--primary);
+            border-radius: 0 0 12px 12px;
+        }
+        .hero h1 {
+            color: #222;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .hero h1 span { color: var(--primary); }
+        .hero p {
+            color: #555;
+            margin: 0 auto;
+            max-width: 500px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: #fff0ed;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            border: 1px solid #ffd4cb;
         }
 
         .container { 
             max-width: 480px; /* Mobile focused max width */
-            margin: 0 auto; 
-            padding: 10px;
+            margin: 0 auto 40px auto; 
+            padding: 0 12px;
         }
-        .section-title {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 0;
-            color: var(--text-color);
-            text-transform: uppercase;
-            padding: 10px 0;
-        }
-        .title-wrapper {
-            background: transparent;
-            padding: 0 5px;
-            margin-bottom: 10px;
-            box-shadow: none;
-            display: flex;
-            align-items: center;
-            border-bottom: 2px solid var(--primary);
-        }
+        
         .grid { 
             display: grid; 
-            grid-template-columns: repeat(2, 1fr); /* 2 columns exactly for mobile */
-            gap: 8px; /* tight spacing like shopee */
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
         }
         @media (min-width: 500px) {
-            .grid { grid-template-columns: repeat(3, 1fr); }
+            .grid { grid-template-columns: repeat(3, 1fr); gap: 16px;}
             .container { max-width: 768px; }
         }
         @media (min-width: 768px) {
@@ -135,39 +145,70 @@
 
         .card { 
             background: white; 
-            border-radius: 2px; 
+            border-radius: 8px; 
             overflow: hidden;
             display: flex;
             flex-direction: column;
             text-decoration: none;
             color: inherit;
             position: relative;
-            transition: transform 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
             border: 1px solid #f0f0f0;
         }
         .card:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+            transform: translateY(-4px); 
+            box-shadow: 0 8px 16px rgba(238, 77, 45, 0.15); 
+            border-color: var(--primary);
             z-index: 2;
+        }
+        .img-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #f0f0f0;
+            overflow: hidden;
         }
         .card img { 
             width: 100%; 
-            aspect-ratio: 1/1; 
+            height: 100%;
             object-fit: cover; 
-            background: #f0f0f0;
+            transition: transform 0.3s ease;
         }
+        .card:hover img {
+            transform: scale(1.05);
+        }
+
+        /* NEW HIGHLIGHTED CODE BADGE */
+        .code-badge { 
+            font-size: 15px; 
+            color: #fff; 
+            background: rgba(0,0,0,0.75); 
+            padding: 6px 12px; 
+            border-radius: 0 0 8px 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-weight: 800;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+            border-right: 2px solid var(--primary);
+            border-bottom: 2px solid var(--primary);
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+            letter-spacing: 0.5px;
+        }
+
         .card-body {
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 8px;
             flex-grow: 1;
         }
         .card h3 { 
-            font-size: 12px; 
+            font-size: 13px; 
             margin: 0; 
-            font-weight: 400;
+            font-weight: 500;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             line-clamp: 2;
@@ -175,40 +216,46 @@
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1.4;
-        }
-        @media (min-width: 576px) {
-            .card h3 { font-size: 14px; }
-        }
-        .price-row {
-            margin-top: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            color: #222;
         }
         .price { 
             color: var(--primary); 
-            font-size: 14px; 
-            font-weight: 500; 
+            font-size: 16px; 
+            font-weight: 700; 
             margin: 0;
         }
-        .code { 
-            font-size: 10px; 
-            color: #fff; 
-            background: rgba(0,0,0,0.5); 
-            padding: 3px 6px; 
-            border-radius: 2px;
-            position: absolute;
-            top: 5px;
-            right: 5px;
+
+        /* EXPLICIT CTA */
+        .cta-btn {
+            margin-top: auto;
+            background: #fff0ed;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            text-align: center;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
         }
+        .card:hover .cta-btn {
+            background: var(--primary);
+            color: white;
+        }
+
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             background: white;
-            border-radius: 4px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border-radius: 8px;
             color: var(--text-muted);
             grid-column: 1 / -1;
+            border: 1px dashed #ccc;
         }
     </style>
 </head>
@@ -216,11 +263,11 @@
     <header class="header">
         <div class="header-content">
             <div class="brand">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                 dailyproduk
             </div>
             <div class="search-box">
-                <input type="number" id="q" placeholder="Cari berdasarkan kode angka..." onkeypress="handleKeyPress(event)">
+                <input type="number" id="q" placeholder="Cari kode katalog favoritmu..." onkeypress="handleKeyPress(event)">
                 <button class="btn-search" onclick="loadKatalog(document.getElementById('q').value)">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </button>
@@ -231,12 +278,15 @@
         </div>
     </header>
 
+    <div class="hero">
+        <div class="hero-badge">Pusat Belanja Afiliasi</div>
+        <h1>Temukan Gaya <span>Terbaikmu!</span></h1>
+        <p>Pilih produk favorit Anda di daftar katalog bawah kami. Klik item yang Anda suka dan Anda akan diarahkan untuk segera bertransaksi aman langsung di <b>Aplikasi Shopee Asli</b>.</p>
+    </div>
+
     <div class="container">
-        <div class="title-wrapper">
-            <h2 class="section-title" id="sectionTitle">Semua Produk</h2>
-        </div>
         <div id="katalogGrid" class="grid">
-            <div class="empty-state">Memuat data produk...</div>
+            <div class="empty-state">Memuat data produk kami...</div>
         </div>
     </div>
 
@@ -258,48 +308,45 @@
 
         async function loadKatalog(query = '') {
             const grid = document.getElementById('katalogGrid');
-            const sectionTitle = document.getElementById('sectionTitle');
-            
-            grid.innerHTML = '<div class="empty-state">Memuat data produk...</div>';
+            grid.innerHTML = '<div class="empty-state">Memuat data produk kami...</div>';
             
             try {
                 const res = await fetch(`/api/produk?q=${query}`);
                 const data = await res.json();
                 
-                if(query) {
-                    sectionTitle.innerText = `Hasil Pencarian: ${query}`;
-                } else {
-                    sectionTitle.innerText = "Semua Produk";
-                }
-
                 if(data.length === 0) {
                     grid.innerHTML = `<div class="empty-state">
-                        <p>Produk tidak ditemukan.</p>
+                        <p style="font-weight: 500;">Maaf, kode produk tidak ditemukan.</p>
                     </div>`;
                     return;
                 }
 
                 grid.innerHTML = data.map(item => {
                     const fallbackLink = item.url_shopee || item.url_gambar;
-                    // Provide a generic shopee image if microlink failed
                     const imgSrc = item.url_gambar && item.url_gambar.startsWith('http') && item.url_gambar !== fallbackLink 
                         ? item.url_gambar 
                         : 'https://down-id.img.susercontent.com/file/sg-11134004-7rdxl-m0e9y5y65e0lca';
                         
                     return `
-                    <a href="${fallbackLink}" target="_blank" rel="noopener noreferrer" class="card" style="text-decoration: none;">
-                        <span class="code">#${item.kode}</span>
-                        <img src="${imgSrc}" onerror="this.src='https://placehold.co/300x300/f0f0f0/999?text=Tidak+Ada+Gambar'" alt="${item.nama}">
+                    <a href="${fallbackLink}" target="_blank" rel="noopener noreferrer" class="card">
+                        <div class="img-wrapper">
+                            <span class="code-badge">KODE: ${item.kode}</span>
+                            <img src="${imgSrc}" onerror="this.src='https://placehold.co/300x300/f0f0f0/999?text=Tidak+Ada+Gambar'" alt="${item.nama}">
+                        </div>
                         <div class="card-body">
                             <h3>${item.nama}</h3>
                             <div class="price-row">
                                 <p class="price">${formatPrice(item.harga)}</p>
                             </div>
+                            <div class="cta-btn">
+                                Cek di Shopee
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+                            </div>
                         </div>
                     </a>
                 `}).join('');
             } catch (err) {
-                grid.innerHTML = `<div class="empty-state">Gagal memuat produk. Silakan coba lagi.</div>`;
+                grid.innerHTML = `<div class="empty-state">Gagal memuat produk. Silakan coba memuat ulang halaman.</div>`;
             }
         }
 
