@@ -30,13 +30,20 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    // Helper fetch OpenGraph Shopee Image via Microlink
+    // Helper fetch OpenGraph Shopee Image via Native Fetch + WhatsApp User Agent
     async function getShopeeImage(shopeeUrl) {
       if(!shopeeUrl || !shopeeUrl.includes('shopee.')) return '';
       try {
-        const mlRes = await fetch('https://api.microlink.io/?url=' + encodeURIComponent(shopeeUrl));
-        const mlData = await mlRes.json();
-        return mlData.data?.image?.url || '';
+        const res = await fetch(shopeeUrl, {
+          redirect: 'follow',
+          headers: {
+            'User-Agent': 'WhatsApp/2.21.12.21 A'
+          }
+        });
+        const text = await res.text();
+        const ogMatch = text.match(/<meta\s+(?:property|name)=['"]og:image['"]\s+content=['"](.*?)['"]/i);
+        const twMatch = text.match(/<meta\s+(?:property|name)=['"]twitter:image['"]\s+content=['"](.*?)['"]/i);
+        return (ogMatch ? ogMatch[1] : (twMatch ? twMatch[1] : ''));
       } catch(e) {
         return '';
       }
