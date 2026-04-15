@@ -1,8 +1,10 @@
-import { db } from '@vercel/postgres';
+import { createPool } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   try {
-    const client = await db.connect();
+    const client = createPool({
+      connectionString: process.env.DB_POSTGRES_URL_NON_POOLING || process.env.DB_DATABASE_URL || process.env.DB_POSTGRES_URL || process.env.POSTGRES_URL,
+    });
 
     // Auto-migrate schema lazily to support url_shopee
     try {
