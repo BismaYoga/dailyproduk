@@ -1,22 +1,26 @@
-import { createPool } from '@vercel/postgres';
+import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
   try {
-    const client = createPool({
-      connectionString: process.env.DB_POSTGRES_URL_NON_POOLING || process.env.DB_DATABASE_URL || process.env.DB_POSTGRES_URL || process.env.POSTGRES_URL,
-    });
+    const connectionString = process.env.DB_POSTGRES_URL_NON_POOLING || process.env.DB_DATABASE_URL || process.env.DB_POSTGRES_URL || process.env.POSTGRES_URL;
+    
+    if (!connectionString) {
+      throw new Error("Database URL is missing. Check your Vercel Environment Variables.");
+    }
+
+    const sql = neon(connectionString);
 
     // Auto-migrate schema lazily to support url_shopee
     try {
-      await client.sql`ALTER TABLE katalog ADD COLUMN IF NOT EXISTS url_shopee TEXT`;
+      await sql`ALTER TABLE katalog ADD COLUMN IF NOT EXISTS url_shopee TEXT`;
     } catch(e) { /* ignore */ }
 
     // GET method is public
     if (req.method === 'GET') {
       const { q } = req.query;
-      const { rows } = q 
-        ? await client.sql`SELECT * FROM katalog WHERE kode::text = ${q}`
-        : await client.sql`SELECT * FROM katalog ORDER BY id ASC`;
+      const rows = q 
+        ? await sql`SELECT * FROM katalog WHERE kode::text = ${q}`
+        : await sql`SELECT * FROM katalog ORDER BY id ASC`;
       return res.status(200).json(rows);
     }
 
@@ -43,7 +47,7 @@ export default async function handler(req, res) {
       const { nama, harga, kode, url } = body;
       const shopee_img = await getShopeeImage(url);
       
-      await client.sql`INSERT INTO katalog (nama, harga, kode, url_gambar, url_shopee) VALUES (${nama}, ${harga}, ${kode}, ${shopee_img}, ${url})`;
+      await sql`INSERT INTO katalog (nama, harga, kode, url_gambar, url_shopee) VALUES (${nama}, ${harga}, ${kode}, ${shopee_img}, ${url})`;
       return res.status(200).json({ success: true, img: shopee_img });
     }
 
@@ -52,13 +56,13 @@ export default async function handler(req, res) {
       const { id, nama, harga, kode, url } = body;
       const shopee_img = await getShopeeImage(url);
 
-      await client.sql`UPDATE katalog SET nama = ${nama}, harga = ${harga}, kode = ${kode}, url_gambar = ${shopee_img}, url_shopee = ${url} WHERE id = ${id}`;
+      await sql`UPDATE katalog SET nama = ${nama}, harga = ${harga}, kode = ${kode}, url_gambar = ${shopee_img}, url_shopee = ${url} WHERE id = ${id}`;
       return res.status(200).json({ success: true, img: shopee_img });
     }
 
     if (req.method === 'DELETE') {
       const { id } = req.query;
-      await client.sql`DELETE FROM katalog WHERE id = ${id}`;
+      await sql`DELETE FROM katalog WHERE id = ${id}`;
       return res.status(200).json({ success: true });
     }
 
