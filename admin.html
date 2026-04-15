@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - DailyProduk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ee4d2d;
+            --primary-hover: #d73a1e;
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+        }
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            padding: 0; 
+            margin: 0;
+            background: var(--bg-color); 
+            color: var(--text-color);
+        }
+        /* Login Overlay */
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .login-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            width: 300px;
+        }
+        .header {
+            background: #fff;
+            padding: 16px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 15px;
+            display: none; /* hidden until login */
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        h2, h3 { margin-top: 0; color: var(--primary); }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        form input { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        form input:focus { outline: none; border-color: var(--primary); }
+        button { 
+            padding: 12px 20px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 4px;
+            cursor: pointer; 
+            font-weight: 500; 
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        button:hover { background: var(--primary-hover); }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px;
+        }
+        th, td { 
+            border-bottom: 1px solid var(--border-color); 
+            padding: 12px 10px; 
+            text-align: left; 
+        }
+        th { background: #f9f9f9; font-weight: 500; color: #555; }
+        .table-container { overflow-x: auto; }
+        .btn-hapus { background: #fff; color: #dc3545; border: 1px solid #dc3545; padding: 6px 12px; font-size: 12px; border-radius: 4px; }
+        .btn-hapus:hover { background: #dc3545; color: #fff; }
+        .btn-edit { background: #fff; color: #007bff; border: 1px solid #007bff; padding: 6px 12px; font-size: 12px; border-radius: 4px; margin-right: 5px; }
+        .btn-edit:hover { background: #007bff; color: #fff; }
+        .text-center { text-align: center; }
+
+        /* Edit Modal Overlay */
+        #editModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: white; padding: 24px; border-radius: 8px; width: 400px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2 style="color:var(--primary); margin-bottom: 20px;">Login Admin</h2>
+            <input type="password" id="adminPwd" placeholder="Masukkan Sandi" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
+            <button onclick="login()" style="width: 100%;">Masuk</button>
+            <p id="loginError" style="color: red; display: none; font-size: 12px; margin-top: 10px;">Sandi salah, coba lagi.</p>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal">
+        <div class="modal-content">
+            <h3>Edit Produk</h3>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label>Nama Produk</label>
+                    <input type="text" id="editNama" required>
+                </div>
+                <div class="form-group">
+                    <label>Harga (Rupiah)</label>
+                    <input type="number" id="editHarga" required>
+                </div>
+                <div class="form-group">
+                    <label>Kode Angka Katalog</label>
+                    <input type="number" id="editKode" required>
+                </div>
+                <div class="form-group">
+                    <label>Link Produk Shopee</label>
+                    <input type="url" id="editUrl" required>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" style="flex: 1;">Simpan Perubahan</button>
+                    <button type="button" onclick="closeEditModal()" style="flex: 1; background: #6c757d;">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dasboard -->
+    <div class="header">
+        <div class="brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            dailyproduk Admin
+        </div>
+        <a href="/" style="color: #666; text-decoration: none; font-size: 14px;">Lihat Katalog Web</a>
+    </div>
+
+    <div class="container" id="adminContainer">
+        <div class="card">
+            <h2>Tambah Katalog Baru</h2>
+            <form id="addForm">
+                <div class="form-group">
+                    <label for="nama">Nama Produk</label>
+                    <input type="text" id="nama" placeholder="Masukkan nama produk..." required>
+                </div>
+                <div class="form-group">
+                    <label for="harga">Harga (Rupiah)</label>
+                    <input type="number" id="harga" placeholder="Contoh: 50000" required>
+                </div>
+                <div class="form-group">
+                    <label for="kode">Kode Angka Katalog</label>
+                    <input type="number" id="kode" placeholder="Contoh: 123" required>
+                </div>
+                <div class="form-group">
+                    <label for="url">Link Produk Shopee</label>
+                    <input type="url" id="url" placeholder="https://shopee.co.id/..." required>
+                </div>
+                <button type="submit" style="width: 100%; margin-top: 10px;">Simpan ke Database</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Daftar Produk (${'<span id="count">0</span>'})</h3>
+            <div class="table-container">
+                <table id="listTable">
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Harga</th>
+                            <th>Kode</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listBody">
+                        <tr><td colspan="4" class="text-center">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let GLOBAL_TOKEN = "";
+
+        // Fungsi Login sederhana
+        function login() {
+            const pwd = document.getElementById('adminPwd').value;
+            if(pwd === "dailyadmin123") {
+                GLOBAL_TOKEN = pwd;
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('adminContainer').style.display = 'block';
+                fetchAdmin();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        // Fitur Enter untuk form Login
+        document.getElementById('adminPwd').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") login();
+        });
+
+        function formatPrice(price) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+        }
+
+        async function fetchAdmin() {
+            try {
+                const res = await fetch('/api/produk');
+                const data = await res.json();
+                
+                document.getElementById('count').innerText = data.length;
+                
+                if (data.length === 0) {
+                    document.getElementById('listBody').innerHTML = '<tr><td colspan="4" class="text-center">Belum ada produk.</td></tr>';
+                    return;
+                }
+
+                document.getElementById('listBody').innerHTML = data.map(item => `
+                    <tr>
+                        <td>
+                            <a href="${item.url_shopee || item.url_gambar}" target="_blank" style="text-decoration:none; color:var(--primary); font-weight:500;">&#128279; ${item.nama}</a>
+                        </td>
+                        <td>${formatPrice(item.harga)}</td>
+                        <td><strong>#${item.kode}</strong></td>
+                        <td class="text-center" style="white-space: nowrap;">
+                            <button class="btn-edit" onclick="openEditModal(${item.id}, \`${item.nama}\`, ${item.harga}, ${item.kode}, \`${item.url_shopee || item.url_gambar}\`)">Edit</button>
+                            <button class="btn-hapus" onclick="hapus('${item.id}')">Hapus</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                document.getElementById('listBody').innerHTML = '<tr><td colspan="4" class="text-center" style="color:red;">Gagal memuat data.</td></tr>';
+            }
+        }
+
+        // Tampilkan Form Edit
+        function openEditModal(id, nama, harga, kode, url) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editNama').value = nama;
+            document.getElementById('editHarga').value = harga;
+            document.getElementById('editKode').value = kode;
+            document.getElementById('editUrl').value = url;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // UPDATE produk (PUT)
+        document.getElementById('editForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
+
+            const body = {
+                id: document.getElementById('editId').value,
+                nama: document.getElementById('editNama').value,
+                harga: document.getElementById('editHarga').value,
+                kode: document.getElementById('editKode').value,
+                url: document.getElementById('editUrl').value
+            };
+
+            try {
+                const res = await fetch('/api/produk', { 
+                    method: 'PUT', 
+                    headers: { 'Content-Type': 'application/json', 'Authorization': GLOBAL_TOKEN },
+                    body: JSON.stringify(body) 
+                });
+                
+                if(res.status === 401) throw new Error('Akses ditolak (Password Salah)');
+                if(!res.ok) throw new Error('Gagal menyimpan edit');
+                
+                closeEditModal();
+                fetchAdmin();
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Simpan Perubahan';
+            }
+        };
+
+        // TAMBAH produk (POST)
+        document.getElementById('addForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
+
+            const body = {
+                nama: document.getElementById('nama').value,
+                harga: document.getElementById('harga').value,
+                kode: document.getElementById('kode').value,
+                url: document.getElementById('url').value
+            };
+            
+            try {
+                const res = await fetch('/api/produk', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json', 'Authorization': GLOBAL_TOKEN },
+                    body: JSON.stringify(body) 
+                });
+                
+                if(res.status === 401) throw new Error('Akses ditolak (Password Salah)');
+                if(!res.ok) throw new Error('Gagal menambahkan produk');
+                
+                alert('Berhasil disimpan!');
+                document.getElementById('addForm').reset();
+                fetchAdmin();
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Simpan ke Database';
+            }
+        };
+
+        // HAPUS produk (DELETE)
+        async function hapus(id) {
+            if(confirm('Yakin ingin hapus produk ini?')) {
+                try {
+                    const res = await fetch(`/api/produk?id=${id}`, { 
+                        method: 'DELETE',
+                        headers: { 'Authorization': GLOBAL_TOKEN }
+                    });
+                    if(res.status === 401) throw new Error('Akses ditolak (Password Salah)');
+                    if(!res.ok) throw new Error('Gagal menghapus');
+                    fetchAdmin();
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

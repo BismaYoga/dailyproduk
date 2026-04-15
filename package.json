@@ -1,0 +1,11 @@
+{
+  "name": "dailyproduk",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node"
+  },
+  "dependencies": {
+    "@vercel/postgres": "^0.8.0"
+  }
+}
